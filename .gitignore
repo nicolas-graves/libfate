@@ -1,7 +1,7 @@
 libdet-random.so
-test-random
+test/random
 libdet-sysinfo.so
-test-sysinfo
+test/sysinfo
 libdet-time.so
-test-time
+test/time
 run*.out
