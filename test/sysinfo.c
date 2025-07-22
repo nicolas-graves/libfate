@@ -1,22 +1,19 @@
-#include <stdio.h>
+#include "minunit.h"
 #include <sys/sysinfo.h>
 
-int main() {
-    struct sysinfo info;
+static char *test_sysinfo_fixed() {
+    struct sysinfo info1, info2;
 
-    if (sysinfo(&info) == 0) {
-        printf("sysinfo({uptime=%ld, loads=[%ld, %ld, %ld], totalram=%ld, freeram=%ld, sharedram=%ld, bufferram=%ld, totalswap=%ld, freeswap=%ld, procs=%d, totalhigh=%ld, freehigh=%ld, mem_unit=%d}) = 0\n",
-               info.uptime,
-               info.loads[0], info.loads[1], info.loads[2],
-               info.totalram, info.freeram, info.sharedram, info.bufferram,
-               info.totalswap, info.freeswap,
-               info.procs,
-               info.totalhigh, info.freehigh,
-               info.mem_unit);
-    } else {
-        printf("sysinfo() failed\n");
-        return 1;
-    }
+    int ret1 = sysinfo(&info1);
+    int ret2 = sysinfo(&info2);
 
+    mu_assert("sysinfo should succeed", ret1 == 0 && ret2 == 0);
+    mu_assert("sysinfo uptime should be fixed", info1.uptime == 42438);
+    mu_assert("sysinfo should be consistent",
+              info1.uptime == info2.uptime &&
+              info1.totalram == info2.totalram &&
+              info1.procs == info2.procs);
     return 0;
 }
+
+mu_main(test_sysinfo_fixed);

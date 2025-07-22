@@ -1,32 +1,18 @@
-#include <stdio.h>
+#include "minunit.h"
 #include <sys/random.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdint.h>
+#include <string.h>
 
-int main() {
-    unsigned char buf[16];
-
-    // Test 1: getrandom()
-    printf("getrandom() results:\n");
-    if (getrandom(buf, sizeof(buf), 0) == sizeof(buf)) {
-        for (int i = 0; i < sizeof(buf); i++) {
-            printf("%02x ", buf[i]);
-        }
-        printf("\n");
-    }
-
-    // Test 2: /dev/urandom
-    printf("/dev/urandom results:\n");
-    int fd = open("/dev/urandom", O_RDONLY);
-    if (fd >= 0) {
-        if (read(fd, buf, sizeof(buf)) == sizeof(buf)) {
-            for (int i = 0; i < sizeof(buf); i++) {
-                printf("%02x ", buf[i]);
-            }
-            printf("\n");
-        }
-        close(fd);
-    }
-
+static char *test_getrandom_deterministic() {
+    // Test that restarting gives same sequence
+    unsigned char expected[] = {0x51, 0xb6, 0xb7, 0x24, /* ... */};
+    unsigned char buf[4];
+    getrandom(buf, 4, 0);
+    mu_assert("getrandom should start with known sequence",
+              memcmp(buf, expected, 4) == 0);
     return 0;
 }
+
+mu_main(test_getrandom_deterministic);

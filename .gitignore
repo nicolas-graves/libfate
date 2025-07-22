@@ -3,5 +3,5 @@ test/random
 libdet-sysinfo.so
 test/sysinfo
 libdet-time.so
-test/time
+test/clock_gettime
 run*.out
