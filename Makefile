@@ -3,14 +3,14 @@
 
 build: libdet-random.so libdet-time.so libdet-sysinfo.so
 
-libdet-random.so: deterministic-random.c
-	gcc -shared -fPIC -ldl deterministic-random.c -o libdet-random.so
+libdet-random.so: src/random.c
+	gcc -shared -fPIC -ldl src/random.c -o libdet-random.so
 
-libdet-time.so: deterministic-time.c
-	gcc -shared -fPIC deterministic-time.c -o libdet-time.so
+libdet-time.so: src/time.c
+	gcc -shared -fPIC src/time.c -o libdet-time.so
 
-libdet-sysinfo.so: deterministic-sysinfo.c
-	gcc -shared -fPIC deterministic-sysinfo.c -o libdet-sysinfo.so
+libdet-sysinfo.so: src/sysinfo.c
+	gcc -shared -fPIC src/sysinfo.c -o libdet-sysinfo.so
 
 test/random: test/random.c
 	gcc test/random.c -o test/random
