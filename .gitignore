@@ -1,3 +1,5 @@
 libdet-random.so
 test-random
+libdet-time.so
+test-time
 run*.out
