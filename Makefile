@@ -1,4 +1,4 @@
-.PHONY: build install test clean
+.PHONY: build install check clean
 .DEFAULT: build
 
 build: libdet-random.so libdet-time.so libdet-sysinfo.so
@@ -21,7 +21,7 @@ test-time: test-time.c
 test-sysinfo: test-sysinfo.c
 	gcc test-sysinfo.c -o test-sysinfo
 
-test: libdet-random.so libdet-time.so libdet-sysinfo.so test-random test-time test-sysinfo
+check: libdet-random.so libdet-time.so libdet-sysinfo.so test-random test-time test-sysinfo
 	@echo "Testing combined libraries..."
 	@LD_PRELOAD=./libdet-random.so:./libdet-time.so:./libdet-sysinfo.so ./test-random > combined1.out
 	@LD_PRELOAD=./libdet-random.so:./libdet-time.so:./libdet-sysinfo.so ./test-time >> combined1.out
