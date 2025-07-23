@@ -8,7 +8,7 @@ static char *test_sysinfo_fixed() {
     int ret2 = sysinfo(&info2);
 
     mu_assert("sysinfo should succeed", ret1 == 0 && ret2 == 0);
-    mu_assert("sysinfo uptime should be fixed", info1.uptime == 42438);
+    mu_assert("sysinfo uptime should be fixed", info1.uptime == 24 * 60 * 60);
     mu_assert("sysinfo should be consistent",
               info1.uptime == info2.uptime &&
               info1.totalram == info2.totalram &&
