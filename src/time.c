@@ -27,9 +27,9 @@ static time_t get_deterministic_time() {
 }
 
 int clock_gettime(clockid_t clk_id, struct timespec *tp) {
-    if (tp) {
-        tp->tv_sec = get_deterministic_time();
-        tp->tv_nsec = FIXED_NSEC;
-    }
+    (void)clk_id;
+
+    tp->tv_sec = get_deterministic_time();
+    tp->tv_nsec = FIXED_NSEC;
     return 0;
 }
