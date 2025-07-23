@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <errno.h>
 
 // Simple deterministic PRNG (LCG)
 static uint32_t seed = 0x12345678;
@@ -17,11 +18,23 @@ static uint32_t next_rand() {
 
 // Override getrandom syscall
 ssize_t getrandom(void *buf, size_t buflen, unsigned int flags) {
+    (void)flags;
+
+    if (!buf) {
+        errno = EFAULT;
+        return -1;
+    }
+
+    if (buflen > 256) {
+        errno = EIO;
+        return -1;
+    }
+
     unsigned char *bytes = (unsigned char *)buf;
     for (size_t i = 0; i < buflen; i++) {
         bytes[i] = next_rand() & 0xFF;
     }
-    return buflen;
+    return (ssize_t)buflen;
 }
 
 // Override /dev/urandom reads
@@ -40,11 +53,16 @@ ssize_t read(int fd, void *buf, size_t count) {
     if (len > 0) {
         target[len] = '\0';
         if (strstr(target, "/dev/urandom") || strstr(target, "/dev/random")) {
+            if (!buf) {
+                errno = EFAULT;
+                return -1;
+            }
+
             unsigned char *bytes = (unsigned char *)buf;
             for (size_t i = 0; i < count; i++) {
                 bytes[i] = next_rand() & 0xFF;
             }
-            return count;
+            return (ssize_t)count;
         }
     }
 
