@@ -1,37 +1,37 @@
-.PHONY: build install check clean
-.DEFAULT: build
+BUILD_DIR := build
 
-build: libdet-random.so libdet-time.so libdet-sysinfo.so
+CC := gcc
+CFLAGS := -Wall -Wextra -O2
+SHARED_FLAGS := -shared -fPIC
+LIBS := -ldl
 
-libdet-random.so: src/random.c
-	gcc -shared -fPIC -ldl src/random.c -o libdet-random.so
+SRC_FILES := $(wildcard src/*.c)
+LIB_TARGETS := $(patsubst src/%.c,$(BUILD_DIR)/libfate-%.so,$(SRC_FILES))
+TEST_TARGETS := $(patsubst src/%.c,$(BUILD_DIR)/test_%,$(SRC_FILES))
 
-libdet-time.so: src/time.c
-	gcc -shared -fPIC src/time.c -o libdet-time.so
+.PHONY: all build check clean install help
+.DEFAULT_GOAL := build
 
-libdet-sysinfo.so: src/sysinfo.c
-	gcc -shared -fPIC src/sysinfo.c -o libdet-sysinfo.so
+build: $(LIB_TARGETS)
 
-test/random: test/random.c
-	gcc test/random.c -o test/random
+$(BUILD_DIR)/libfate-%.so: src/%.c
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(if $(findstring random,$*),$(LIBS)) $< -o $@
 
-test/clock_gettime: test/clock_gettime.c
-	gcc test/clock_gettime.c -o test/clock_gettime
+$(BUILD_DIR)/test_%: test/%.c
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) $< -o $@
 
-test/sysinfo: test/sysinfo.c
-	gcc test/sysinfo.c -o test/sysinfo
+check: $(LIB_TARGETS) $(TEST_TARGETS)
+	@for test in $(TEST_TARGETS); do \
+		lib=$$(echo $$test | sed 's|$(BUILD_DIR)/test_|$(BUILD_DIR)/libfate-|; s|$$|.so|'); \
+		echo "Testing $$test with $$lib"; \
+		LD_PRELOAD=$$lib $$test; \
+	done
 
-
-check: libdet-random.so libdet-time.so libdet-sysinfo.so test/random test/clock_gettime test/sysinfo
-	LD_PRELOAD=./libdet-random.so ./test/random
-	LD_PRELOAD=./libdet-time.so ./test/clock_gettime
-	LD_PRELOAD=./libdet-sysinfo.so ./test/sysinfo
+install: $(LIB_TARGETS)
+	mkdir -p $(PREFIX)/lib
+	install -m 755 $(LIB_TARGETS) $(PREFIX)/lib/
 
 clean:
-	rm -f libdet-random.so libdet-time.so libdet-sysinfo.so test/random test/clock_gettime test/sysinfo run*.out combined*.out sysinfo*.out
-
-install: libdet-random.so libdet-time.so libdet-sysinfo.so
-	mkdir -p $(PREFIX)/lib
-	install libdet-random.so $(PREFIX)/lib
-	install libdet-time.so $(PREFIX)/lib
-	install libdet-sysinfo.so $(PREFIX)/lib
+	rm -rf $(BUILD_DIR)
