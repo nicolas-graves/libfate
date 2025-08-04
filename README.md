@@ -16,7 +16,7 @@ The project is tiny, is **maintained** (I will happily merge PRs) but is not und
 
 ## Use-case
 
-I originally used the OpenSUSE dettrace approach to make Emacs reproducible in Guix.  But when Guix switch to GCC@14, dettrace stopped working as expected.  dettrace is a complex piece of software, my need was much less heavy: I don't need to systematically patch all sources of nondetermism, just the ones that make a process/binary unreproducible in a container/chroot.
+I originally used the openSUSE dettrace approach to make Emacs reproducible in Guix.  But when Guix switch to GCC@14, dettrace stopped working as expected.  dettrace is a complex piece of software, my need was much less heavy: I don't need to systematically patch all sources of nondeterminism, just the ones that make a process/binary unreproducible in a container/chroot.
 
 ## Usage
 
